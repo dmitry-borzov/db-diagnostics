@@ -1,4 +1,3 @@
-// https://play.rust-lang.org/?version=beta&mode=debug&edition=2018&gist=db1d727d7f66118df7cc04186a5f9b91
 // ============== SETTINGS ===============================
 const INPUT: &str = r#"
 DOCUMENT_ID               NOT NULL NUMBER         
@@ -24,40 +23,34 @@ const IS_VIEW: bool = true;
 // ============== End of SETTINGS =========================
 
 fn main() {
-    let mut fields_array = vec![];
+    let mut fields = "".to_string();
     let input_lines = INPUT.split("\n").filter(|x| !x.is_empty());
     for line in input_lines {
         let splitted_line = line
             .split(' ')
             .filter(|x| !x.is_empty())
             .collect::<Vec<_>>();
-        if splitted_line.len() > 0 {
-            let field_name = splitted_line[0];
-            let mut field_type = splitted_line[splitted_line.len() - 1].to_string();
-            let offset = field_type.find("(").unwrap_or(field_type.len());
-            field_type.truncate(offset);
-            let nullable = if splitted_line.contains(&"NOT") {
-                "false"
-            } else {
-                "true"
-            };
-            let result_line = format!(
-                r#"new DatabaseObjectArgument {{ Name = "{}", Type = "{}", Nullable = {} }},"#,
-                field_name, field_type, nullable
-            );
-            fields_array.push(result_line);
-        }
+
+        if splitted_line.len() == 0 { continue; }
+
+        let field_name = splitted_line[0];
+        let mut field_type = splitted_line[splitted_line.len() - 1].to_string();
+        let offset = field_type.find("(").unwrap_or(field_type.len());
+        field_type.truncate(offset);
+        let nullable = if splitted_line.contains(&"NOT") {
+            "false"
+        } else {
+            "true"
+        };
+        let result_line = format!(
+            r#"                        new DatabaseObjectArgument {{ Name = "{}", Type = "{}", Nullable = {}, }},"#,
+            field_name, field_type, nullable
+        );
+        fields.push_str(&result_line);
+        fields.push_str("\n");
     }
 
-    let mut fields = "".to_string();
-    for i in 0..fields_array.len() {
-        let field = &fields_array[i];
-        fields.push_str("                        ");
-        fields.push_str(&field);
-        if i < fields_array.len() - 1 {
-            fields.push_str("\n");
-        }
-    }
+    fields = fields.trim_end_matches("\n").to_string();
 
     let object_type = if IS_VIEW { "View" } else { "Table" };
     println!(
