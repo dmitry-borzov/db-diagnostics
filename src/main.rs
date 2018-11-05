@@ -31,7 +31,9 @@ fn main() {
             .filter(|x| !x.is_empty())
             .collect::<Vec<_>>();
 
-        if splitted_line.len() == 0 { continue; }
+        if splitted_line.len() == 0 {
+            continue;
+        }
 
         let field_name = splitted_line[0];
         let mut field_type = splitted_line[splitted_line.len() - 1].to_string();
