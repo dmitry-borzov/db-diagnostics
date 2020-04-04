@@ -20,9 +20,12 @@ LAST_UPDATE_BY_UID                 VARCHAR2(50)
 const DB_OBJECT_NAME: &str = "V_DISPUTE_RES_ATTACHMENTS";
 const SCHEME_NAME: &str = "CARRIER";
 const IS_VIEW: bool = true;
+const TAB: &str = "    ";
 // ============== End of SETTINGS =========================
 
 fn main() {
+    let tab2 = TAB.repeat(2);
+    let tab3 = TAB.repeat(3);
     let mut fields = "".to_string();
     let input_lines = INPUT.split("\n").filter(|x| !x.is_empty());
     for line in input_lines {
@@ -45,8 +48,8 @@ fn main() {
             "true"
         };
         let result_line = format!(
-            r#"                        new DatabaseObjectArgument {{ Name = "{}", Type = "{}", Nullable = {}, }},"#,
-            field_name, field_type, nullable
+            r#"{}new DatabaseObjectArgument {{ Name = "{}", Type = "{}", Nullable = {}, }},"#,
+            tab3, field_name, field_type, nullable
         );
         fields.push_str(&result_line);
         fields.push_str("\n");
@@ -57,23 +60,31 @@ fn main() {
     let object_type = if IS_VIEW { "View" } else { "Table" };
     println!(
         r#"
-public static DatabaseObject {}
-{{
-    get
-    {{
-        return new DatabaseObject
-        {{
-            ObjectType = DatabaseObjectType.{},
-            Owner = "{}",
-            Name = "{}",
-            Arguments = new List<DatabaseObjectArgument>
-                    {{
+public static DatabaseObject {} =>
+{}new DatabaseObject
+{}{{
+{}ObjectType = DatabaseObjectType.{},
+{}Owner = "{}",
+{}Name = "{}",
+{}Arguments = new List<DatabaseObjectArgument>
+{}{{
 {}
-                    }}
-        }};
-    }}
-}}
+{}}}
+{}}};
 "#,
-        DB_OBJECT_NAME, object_type, SCHEME_NAME, DB_OBJECT_NAME, fields
+        DB_OBJECT_NAME,
+        TAB,
+        TAB,
+        tab2,
+        object_type,
+        tab2,
+        SCHEME_NAME,
+        tab2,
+        DB_OBJECT_NAME,
+        tab2,
+        tab2,
+        fields,
+        tab2,
+        TAB
     );
 }
